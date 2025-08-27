@@ -1,9 +1,5 @@
-# Node.js dependencies
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # Build outputs
 dist/
@@ -12,13 +8,14 @@ build/
 coverage/
 
 # React-specific
-client/node_modules/
 client/build/
 client/.env
 
 # Server-specific
-server/node_modules/
 server/.env
+
+# Logs
+*.log
 
 # OS files
 .DS_Store
