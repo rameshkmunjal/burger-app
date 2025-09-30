@@ -3,8 +3,8 @@ import React , {useEffect, useState} from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 /* importing components */
-import Footer from '../Components/Footer';
-import Navbar from '../Components/Navbar';
+import Footer from '../Component/Footer';
+import Navbar from '../Component/Navbar';
 
 
 

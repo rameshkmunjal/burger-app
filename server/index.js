@@ -1,44 +1,49 @@
 import express from 'express';
-const app=express();
 import http from 'http';
-import bodyParser from 'body-parser';
 import cors from 'cors';
-import routeIndex from './routes/index.js';
 import mongoose from 'mongoose';
 
+import routeIndex from './routes/index.js';
+import { config } from './config.js';
+import importItems from './importItems.js';
 
-const server=http.createServer(app);
+const app = express();
+const server = http.createServer(app);
 
-/* middleware */
+/* Middleware */
+// Allow cross-origin requests (React frontend <-> Node backend)
 app.use(cors());
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+
+// Parse incoming JSON and form data
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
 app.use('/', routeIndex);
 
+const onListening = async () => {
+  console.log("Server is Listening");
 
+  try {
+    // Connect using config from .env
+    await mongoose.connect(config.db.uri, { autoIndex: false });
+    console.log('✅ MongoDB connected');
 
-server.listen(5000);
-server.on('listening', onListening);
-server.on('error', onError);
-
-function onListening(){
-    console.log("Server is Listening");
-    let db=mongoose.connect('mongodb://127.0.0.1/stockDB' );
-}
-
-function onError(){
-    console.log("error happened in server connection");
-}
-
-mongoose.connection.on('open', function(err){
-    if(err){
-        console.log('error happened in mongoose connection open', err);
-    } else {
-        console.log('mongoose connection set up successfully');
+    // Run one-time import if flag is true
+    if (config.flags.runImport) {
+      await importItems();
+      console.log("📦 Item import complete");
     }
-})
 
+  } catch (err) {
+    console.error("❌ DB connection failed:", err);
+  }
+};
 
-mongoose.connection.on('error', function(err){
-    console.log('error occurred in mongoose connection');
-})
+server.listen(config.server.port);
+server.on('listening', onListening);
+server.on('error', () => console.log("❌ Error in server connection"));
+
+// Optional: Mongoose connection events
+mongoose.connection.on('open', () => console.log('Mongoose connection set up successfully'));
+mongoose.connection.on('error', (err) => console.log('Mongoose connection error:', err));

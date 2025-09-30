@@ -1,8 +1,18 @@
 import PurchaseModel from '../Schema/purchase.js';
-import { make5LettersStr } from './CommonFunctions.js';
+import InventoryModel from '../Schema/inventory.js';
+import { make5LettersStr, sortList, filteredDataByMonthAndYear, sortOnItemId } from './CommonFunctions.js';
 import shortId from 'shortid';
+
+import {improvisePurchaseList} from './PurchaseFunctions.js';
+
+import {
+  getCategorySummary,
+  getCategoryTotal
+} from "./InventoryFunctions.js";
+
 export const getPurchaseList=async(req, res)=>{
-    const list = await PurchaseModel.find().lean();
+    const purchaseList = await PurchaseModel.find().lean();
+    const list=sortList(purchaseList);
 
     if(list){
         res.json(list);
@@ -10,6 +20,24 @@ export const getPurchaseList=async(req, res)=>{
         res.status(404);
         throw new Error ("No Data Found");
     }
+
+}
+
+
+export const getMonthlyPurchaseList=async(req, res)=>{
+  const {month, year}=req.params;
+  console.log('month : ', month, 'year : ', year);
+  const purchaseList = await PurchaseModel.find().lean();
+  //const list=sortList(purchaseList);
+  const arr=improvisePurchaseList(purchaseList);
+  const list=sortOnItemId(filteredDataByMonthAndYear(arr, month, year));
+
+  if(list){
+      res.json(list);
+  }else {
+      res.status(404);
+      throw new Error ("No Data Found");
+  }
 
 }
 
@@ -29,40 +57,62 @@ export const getSinglePurchaseDetails=async(req, res)=>{
 
 }
 
-export const createPurchase=async(req, res)=>{
-  
+export const createPurchase = async (req, res) => {
+  try {
     const {
-        date, itemCode, itemName, category, 
-        quantity, unitDesc, measType, source,
-        amount
-      }=req.body;
-    //console.log(date);
-    const id=shortId.generate();
-    const itemId=itemCode+'0'+unitDesc;
+      date,
+      itemCode,
+      itemName,
+      category,
+      quantity,
+      unitDesc,
+      measType,
+      source,
+      amount,
+    } = req.body;
+
+    const id = shortId.generate();
+    const itemId = itemCode + make5LettersStr(unitDesc);
 
     const purchaseItem = new PurchaseModel({
-        buyDate:date,
-        id: id,
-        itemCode:itemCode,  
-        itemId: itemId,
-        itemName: itemName,
-        unitDesc:unitDesc,
-        measType:measType,
-        category:category,
-        quantity: quantity,        
-        amount: amount,
-        source:source
-      });
-    
-      try {
-        const result = await purchaseItem.save();
-        //console.log('New Inventory Saved:', result);
-        res.json(result);
-      } catch (err) {
-        //console.error('Error:', err.message);
-        throw new Error('Inventory could not be created');
-      }
-}
+      buyDate: date,
+      id,
+      itemCode,
+      itemId,
+      itemName,
+      unitDesc,
+      measType,
+      category,
+      quantity,
+      amount,
+      source,
+      add2stock: true, // 👈 mark as added immediately
+    });
+
+    const savedPurchase = await purchaseItem.save();
+
+    // upsert into inventory immediately
+    const inventoryDoc = await InventoryModel.findOneAndUpdate(
+      { id }, // match purchase id
+      {
+        $setOnInsert: {
+          id,
+          balanceQty: quantity,
+          releaseQty: 0,
+          balanceAmt: amount,
+          releaseAmt: 0,
+          releases: [],
+        },
+      },
+      { new: true, upsert: true } // create if not exists
+    );
+
+    res.json({ purchase: savedPurchase, inventory: inventoryDoc });
+  } catch (err) {
+    console.error("❌ Error in createPurchase:", err.message);
+    res.status(500).json({ message: "Purchase could not be created" });
+  }
+};
 
 
 export const editPurchase=async(req, res)=>{
@@ -81,9 +131,8 @@ export const editPurchase=async(req, res)=>{
   
   console.log(i);
     if (i) {
-        i.id=id, 
         i.date=date,
-        i.itemId=itemId,
+        i.itemId=itemCode+(make5LettersStr(unitDesc)),
         i.itemCode=itemCode, 
         i.itemName=itemName, 
         i.category=category,        
@@ -112,6 +161,35 @@ export const deletePurchase=async(req, res)=>{
   } else {
     res.status(404)
     throw new Error('purchase item not found')
+  }
+
+}
+
+
+
+
+export const getPurchaseCategorySummary=async(req, res)=>{
+  try {
+    const purchaseList = await  PurchaseModel.find().lean();
+
+    if ( !purchaseList?.length) {
+      return res.status(404).json({ message: "purchase data could not be fetched" });
+    }
+
+    
+    let list=getCategorySummary(purchaseList);
+    let gt=getCategoryTotal(list);
+    //console.log("line 194 :", newArr);
+    if(list){
+        res.json({summary:list, gt:gt});
+    } else {
+        res.status(404);
+        throw new Error('inventoryList Not Found');
+    }
+        
+  }catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: err.message });
   }
 
 }

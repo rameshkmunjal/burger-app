@@ -2,11 +2,11 @@ import React, { useState} from 'react';
 import axios from 'axios';
 import { validateDate, formatDate} from '../../Functions/commonFunctions';
 import { Link, useNavigate } from 'react-router-dom';
-import Navbar from '../../Components/Navbar';
-import Footer from '../../Components/Footer';
+import Navbar from '../../Component/Navbar';
+import Footer from '../../Component/Footer';
 
 const Purchase = () =>{    
-    const [year, setYear]=useState(0);
+    const [year, setYear]=useState(2025);
     const [month, setMonth]=useState(0);
     const [day, setDay]=useState(0);
     const [itemCode, setItemCode] = useState('');
@@ -94,6 +94,9 @@ const Purchase = () =>{
                         <option value="frozen">Frozen Food</option>
                         <option value="sauces">Sauces Syrups</option> 
                         <option value="drinks">Cold Drinks</option> 
+                        <option value="bakery">Bakery</option> 
+                        <option value="vegetables">Vegetables</option> 
+                        <option value="dairy">Dairy</option> 
                         <option value="products">Products</option>                       
                     </select>
                 </div>
@@ -171,7 +174,7 @@ const Purchase = () =>{
                 <div className="form-input-div flex-center">
                         <button
                             onClick={submitHandler}
-                            className="btn-div"                            
+                            className="click-btn btn-danger"                            
                         >Submit</button>
                 </div>
             </form>

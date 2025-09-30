@@ -4,9 +4,9 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 /* importing components */
-import SearchFyBar from '../Components/SearchFyBar';
-import Footer from '../Components/Footer';
-import NavBar from '../Components/Navbar';
+import SearchFyBar from '../Component/SearchFyBar';
+import Footer from '../Component/Footer';
+import NavBar from '../Component/Navbar';
 
 import { findFyOfDate } from '../Functions/commonFunctions';
 

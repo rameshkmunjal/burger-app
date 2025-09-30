@@ -4,9 +4,9 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 /* importing components */
-import DateSearchBar from '../Components/DateSerachBar';
-import Footer from '../Components/Footer';
-import NavBar from '../Components/Navbar';
+import DateSearchBar from '../Component/DateSerachBar';
+import Footer from '../Component/Footer';
+import NavBar from '../Component/Navbar';
 
 const MonthlyReleaseReport = () => { 
   const [releaseList, setReleaseList] = useState([]);   // ✅ fixed

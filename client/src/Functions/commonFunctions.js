@@ -47,6 +47,7 @@ export const capitaliseFirstLetter=(str)=>{
 }
 
 export const convertObj2Date = (input) => {
+  console.log(typeof(input));
     if (!input) return "";
   
     let date;
@@ -79,4 +80,9 @@ export const convertObj2Date = (input) => {
         return `${year}-${Number(year)+1}`;
     }    
 }
+
+export const findDayInDateObj=(obj)=>obj.getDate();
+export const findMonthInDateObj=(obj)=>obj.getMonth()+1;
+export const findYearInDateObj=(obj)=>obj.getFullYear();
+
   

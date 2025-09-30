@@ -2,8 +2,8 @@ import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Navbar from '../../Components/Navbar';
-import Footer from '../../Components/Footer';
+import Navbar from '../../Component/Navbar';
+import Footer from '../../Component/Footer';
 import { convertObj2Date } from '../../Functions/commonFunctions';
 
 const ReleasePurchase = () =>{    
