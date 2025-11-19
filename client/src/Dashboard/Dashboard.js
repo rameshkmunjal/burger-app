@@ -3,6 +3,7 @@ import Navbar from "../Component/Navbar";
 import Footer from "../Component/Footer";
 import ProfitAndLossPosition from "../Component/ProfitAndLossPosition";
 import CurrentCashFlowPosition from "../Component/CurrentCashFlowPosition";
+import SalesData from "../Component/SalesData";
 
 const Dashboard = () => {
   return (
@@ -19,6 +20,19 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+
+      
+      <div className="info-container">
+        <div className="info-div" style={{ minHeight: "350px", minWidth: 0 }}>
+          <SalesData />
+        </div>
+      </div>
+
+
+      
+      
+
       <Footer />
     </div>
   );

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
-import Navbar from '../../Component/Navbar';
-import Footer from '../../Component/Footer';
-import { convertObj2Date } from '../../Functions/commonFunctions';
-import DeleteConfirmModal from '../../Component/DeleteConfirmModal'; // ✅ import modal
+import { useParams, useNavigate } from 'react-router-dom';
+import Navbar from '../../../Component/Navbar';
+import Footer from '../../../Component/Footer';
+import { convertObj2Date } from '../../../Functions/commonFunctions';
+import DeleteConfirmModal from '../../../Component/DeleteConfirmModal';
+import EditReleaseModal from '../../../Component/EditReleaseModal'; // ✅ import edit modal
 
 const ViewInventory = () => {
   const { id: inventoryId } = useParams();
@@ -15,8 +16,11 @@ const ViewInventory = () => {
   const [balanceQty, setBalanceQty] = useState(0);
   const [releaseData, setReleaseData] = useState([]);
 
-  const [deletingReleaseId, setDeletingReleaseId] = useState(null); // ✅ modal state
+  const [deletingReleaseId, setDeletingReleaseId] = useState(null);
+  const [editingRelease, setEditingRelease] = useState(null); // ✅ store release to edit
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // ✅ control modal
 
+  const navigate = useNavigate();
   const url = "http://localhost:5000";
 
   // ✅ fetch inventory details
@@ -35,17 +39,16 @@ const ViewInventory = () => {
         setItemName('');
       }
     } catch (error) {
+      console.log(error);
       setMessage(error.message || "Error fetching inventory");
       setItemName('');
     }
   };
 
-  // ✅ run fetch when component loads or inventoryId changes
   useEffect(() => {
     fetchData();
   }, [inventoryId]);
 
-  // ✅ reuse fetch after delete
   const refreshData = () => fetchData();
 
   const renderedList = releaseData.map((i) => (
@@ -56,19 +59,28 @@ const ViewInventory = () => {
       <td className="align-r">{i.amt.toFixed(2)}</td>
       <td className="align-r">{i.releasedBy}</td>
       <td className="align-r">{i.releasedTo}</td>
-      <td className="align-c">
-        <button className="btn-div">
-          <Link className="link-btn" to={`/release/edit/${i.releaseId}`}>
-            Edit
-          </Link>
-        </button>
-      </td>
+
+      {/* ✅ Edit button triggers modal instead of redirect */}
       <td className="align-c">
         <button
-          className="btn-div"
+          className="click-btn btn-success"
           onClick={(e) => {
             e.preventDefault();
-            setDeletingReleaseId(i.releaseId); // ✅ open delete modal
+            setEditingRelease(i);
+            setIsEditModalOpen(true);
+          }}
+        >
+          Edit
+        </button>
+      </td>
+
+      {/* ✅ Delete button */}
+      <td className="align-c">
+        <button
+          className="click-btn btn-danger"
+          onClick={(e) => {
+            e.preventDefault();
+            setDeletingReleaseId(i.releaseId);
           }}
         >
           Delete
@@ -81,9 +93,7 @@ const ViewInventory = () => {
     <div className="page-container">
       <Navbar />
       <div className="back-btn-div">
-        <button className="btn-div">
-          <Link className="link-btn" to={'/admin'}>Back</Link>
-        </button>
+        <button className="click-btn btn-danger" onClick={() => navigate(-1)}>Back</button>
       </div>
       <div>{message}</div>
 
@@ -120,6 +130,15 @@ const ViewInventory = () => {
         inventoryId={inventoryId}
         onClose={() => setDeletingReleaseId(null)}
         onDeleted={refreshData}
+      />
+
+      {/* ✅ Edit release modal */}
+      <EditReleaseModal
+        isOpen={isEditModalOpen}
+        release={editingRelease}
+        inventoryId={inventoryId}
+        onClose={() => setIsEditModalOpen(false)}
+        onUpdated={refreshData}
       />
     </div>
   );

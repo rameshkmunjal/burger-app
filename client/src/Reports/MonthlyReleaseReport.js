@@ -69,8 +69,8 @@ const MonthlyReleaseReport = () => {
     <div className="page-container">
       <NavBar />
       <div className="back-btn-div">
-        <button className="btn-div">
-          <Link className="link-btn" to={'/reports'}>Back</Link>
+        <button>
+          <Link className="link click-btn btn-danger" to={'/reports'}>Back</Link>
         </button>
       </div>
       <div className="search-div">

@@ -1,13 +1,13 @@
-import Footer from '../Component/Footer';
-import Navbar from '../Component/Navbar';
-import DateSearchBar from '../Component/DateSerachBar';
-import { MonthsArray } from '../Component/MonthsArray';
+import Footer from '../../../Component/Footer';
+import Navbar from '../../../Component/Navbar';
+import DateSearchBar from '../../../Component/DateSerachBar';
+import { MonthsArray } from '../../../Component/MonthsArray';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {Link} from 'react-router-dom';
-import { capitaliseFirstLetter, convertObj2Date } from '../Functions/commonFunctions';
+import {Link, useNavigate} from 'react-router-dom';
+import { capitaliseFirstLetter, convertObj2Date } from '../../../Functions/commonFunctions';
 
-const SalesList = () => {
+const ExpenseList = () => {
   const url = 'http://localhost:5000';
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
@@ -17,37 +17,38 @@ const SalesList = () => {
   const [list, setList] = useState([]);
   const [grandTotal, setGrandTotal]=useState([]);
   const [message, setMessage] = useState('');
-  const [outletFilter, setOutletFilter]=useState('');
+  const [headFilter, setHeadFilter]=useState('');
 
- 
+  const navigate=useNavigate();
+  
 
-useEffect(() => {
-    const getSalesList = async () => {
+  useEffect(() => {
+    const getExpensesList = async () => {
       try {
-        const response = await axios.get(`${url}/sales/list/${month}/${year}`);
-        console.log('getSalesList response data', response.data);
+        const response = await axios.get(`${url}/expenses/list/${month}/${year}`);
+        console.log('getExpensesList response data', response.data);
 
         if (response.data && response.data.length > 0) {
           setList(response.data);
           setMessage('');
         } else {
           setList([]);
-          setMessage('No sales data to display.');
+          setMessage('No expenses data to display.');
         }
       } catch (error) {
         console.error('Error fetching sales:', error);
         setList([]);
-        setMessage('Failed to fetch sales data.');
+        setMessage('Failed to fetch expenses data.');
       }
     };    
-      getSalesList();
+      getExpensesList();
     
   }, [month, year]);
 
   const filteredList = list.filter((item) => {
-    const matchOutlet = outletFilter === '' || item.outlet.toLowerCase().includes(outletFilter.toLowerCase());  
+    const matchHead = headFilter === '' || item.head.toLowerCase().includes(headFilter.toLowerCase());  
   
-    return matchOutlet  ;
+    return matchHead  ;
   });
 
   useEffect(()=>{
@@ -60,7 +61,6 @@ useEffect(() => {
     }
     changeGrandTotal();
   }, [filteredList]);
-  
 
   function handleInput(obj) {
     console.log('object with month and year : ', obj.month, obj.year);
@@ -70,40 +70,43 @@ useEffect(() => {
   }
 
 
-  const deleteSales = async (id) => {
+
+  const deleteExpense = async (id) => {
     try {
-      const response=await axios.delete(`${url}/sales/delete/${id}`);
+      const response=await axios.delete(`${url}/expense/delete/${id}`);
       console.log(response);
       // Re-fetch after deletion
       setList(prev => prev.filter(item => item.id !== id));
     } catch (error) {
-      console.error('Error deleting sales:', error);
-      setMessage('Failed to delete sales item.');
+      console.error('Error deleting expneses:', error);
+      setMessage('Failed to delete expenses item.');
     }
   };
 
   
 
-  const renderedList = filteredList.map((i) => (
+  const renderedList = list.map((i) => (
     <tr key={i.id}>
-      <td className="align-c">{convertObj2Date(i.saleDate)}</td>  
-      <td className="align-l">{capitaliseFirstLetter(i.outlet)}</td>
+      <td className="align-c">{convertObj2Date(i.expenseDate)}</td>  
+      <td className="align-l">{capitaliseFirstLetter(i.paidTo)}</td>
       <td className="align-r">{i.amount.toFixed(2)}</td>
+      <td className="align-r">{i.head}</td>
+      <td className="align-r">{i.details}</td>
       
       
       <td className="align-c">
-        <button className="btn-div">
-          <Link className="link click-btn btn-success" to={`/sales/edit/${i.id}`}>
+        <button>
+          <Link className="click-btn link btn-danger" to={`/expense/edit/${i.id}`}>
             Edit
           </Link>
         </button>
       </td>
       <td className="align-c">
-        <button className="btn-div click-btn btn-danger" 
+        <button className="click-btn btn-danger" 
                 onClick={
                   (e)=>{
                     e.preventDefault(); 
-                    deleteSales(i.id)
+                    deleteExpense(i.id)
                   }
                 }>
                 Delete
@@ -119,24 +122,25 @@ useEffect(() => {
       <Navbar />
 
       <div className="back-btn-div">
-            <button className="btn-div">
-            <Link className="link-btn" to={'/admin'}>Back</Link>
-            </button>
+            <button className="click-btn btn-danger" onClick={()=>{navigate(-1)}}>Back</button>
       </div> 
+
       <div className="search-div">
         <DateSearchBar onSearch={handleInput} />
       </div> 
-        
-      <h1 className="flex-center">Sales List : {monthName} {year}</h1>
+
+      <h1 className="flex-center">Expenses List : {monthName} {year}</h1>
+
+      
+
       <div className="filter-box">
           <input
             type="text"
-            placeholder="Filter by Outlet"
-            value={outletFilter}
-            onChange={(e) => setOutletFilter(e.target.value)}
+            placeholder="Filter by Head"
+            value={headFilter}
+            onChange={(e) => setHeadFilter(e.target.value)}
           />          
         </div>
-      
 
       {message && (
         <div className="flex-center message" style={{ color: 'red', margin: '20px 0' }}>
@@ -148,9 +152,11 @@ useEffect(() => {
         <table className="tbl">
           <thead>
           <tr>
-            <th>Sales Date</th>
-            <th>Outlet</th>
+            <th>Expenses Date</th>
+            <th>Paid To</th>
             <th>Amount</th>
+            <th>Head</th>
+            <th>Details</th>
             <th colSpan={2}>Action</th>
           </tr>
           </thead>
@@ -171,5 +177,5 @@ useEffect(() => {
   );
 };
 
-export default SalesList;
+export default ExpenseList;
 

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "../db.js";
 const Schema=mongoose.Schema;
 
 /* to record details of each single release*/
@@ -17,7 +17,8 @@ const inventorySchema=new Schema({
     releaseQty:{type:Number, default:0},
     balanceAmt:{type:Number, default:0},
     releaseAmt:{type:Number, default:0},
-    releases:[releaseSchema]
+    releases:[releaseSchema],
+    status: { type: String, default: 'in-stock' }
 });
 
 const InventoryModel=mongoose.model('inventory', inventorySchema);

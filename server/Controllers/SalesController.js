@@ -5,23 +5,28 @@ import {improviseSalesList} from './SalesFunctions.js';
 import { filteredDataByMonthAndYear } from './CommonFunctions.js';
 
 
+/*
 
-export const getSalesList=async(req, res)=>{
+export const getSalesList = async (req, res) => {
+  try {
     const list = await SaleModel.find().lean();
-    //const list=sortList(salesList);
-
-    if(list){
-        res.json(list);
-    }else {
-        res.status(404);
-        throw new Error ("No Data Found");
+    if (!list || list.length === 0) {
+      return res.status(404).json({ message: "No Data Found" });
     }
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-}
+*/
 
 export const getMonthlySalesList=async(req, res)=>{
   const {month, year}=req.params;
   const salesList = await SaleModel.find().lean();
+  if (!salesList || salesList.length === 0) {
+    return res.status(404).json({ message: "No Data Found" });
+  }
 
   const arr=improviseSalesList(salesList);
   //console.log(arr);

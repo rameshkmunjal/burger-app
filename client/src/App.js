@@ -2,28 +2,38 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Dashboard from './Dashboard/Dashboard';
 
 
-import Item from './Admin/Create/item';
-import EditItem from './Admin/Create/editItem';
+import Item from './Pages/Admin/CUD/item';
+import EditItem from './Pages/Admin/CUD/editItem';
 
-import Expense from './Admin/Create/expense';
-import ExpenseList from './Pages/ExpenseList';
-import EditExpense from './Admin/Create/editExpense';
+import Expense from './Pages/Admin/CUD/expense';
 
-import PurchaseList from './Pages/PurchaseList';
-import Purchase from './Admin/Create/purchase';
-import EditPurchase from './Admin/Create/editPurchase';
+import EditExpense from './Pages/Admin/CUD/editExpense';
+import CreateInventory from './Pages/Admin/CUD/createInventory';
+import Purchase from './Pages/Admin/CUD/purchase';
+import BulkPurchase from './Pages/Admin/CUD/bulkPurchase';
+import EditPurchase from './Pages/Admin/CUD/editPurchase';
 
-import ViewInventory from './Admin/Create/viewInventory';
+import ReleaseList from './Pages/Admin/Lists/ReleaseList';
+import PurchaseList from './Pages/Admin/Lists/PurchaseList';
+import PurchasesNotInventoryList from './Pages/Admin/Lists/PurchasesNotInventoryList';
+import ExpenseList from './Pages/Admin/Lists/ExpenseList';
+import Sales from './Pages/Admin/CUD/sales';
+import EditSales from './Pages/Admin/CUD/editSales';
+import ViewInventory from './Pages/Admin/CUD/viewInventory';
+import EditInventory from './Pages/Admin/CUD/editInventory';
+import ReleaseInventory from './Pages/Admin/CUD/releaseInventory';
+import NewPurchase from './Pages/Admin/CUD/newPurchase';
+import CreateProduct from './Pages/Admin/CUD/product';
 
-import Sales from './Admin/Create/sales';
-import SalesList from './Pages/SalesList';
-import EditSales from './Admin/Create/editSales';
+import AdminHome from './Pages/Admin/AdminHome';
+import InventoryList from './Pages/Admin/Lists/InventoryList';
+import SalesList from './Pages/Admin/Lists/SalesList';
+import InventoryStatusList from './Pages/Admin/Lists/inventoryStatusList';
+import ItemList from './Pages/Admin/Lists/ItemList';
+import ProductList from './Pages/Admin/Lists/ProductList';
 
-import AdminHome from './Admin/AdminHome';
-import InventoryList from './Pages/InventoryList';
-import ReleaseInventory from './Admin/Create/releaseInventory';
-
-import ItemList from './Pages/ItemList';
+import AddUser from './Pages/Admin/Users/UserAdd';
+import UserList from './Pages/Admin/Users/UserList';
 
 import ReportsHome from './Reports/ReportsHome';
 import DailyReleaseReport from './Reports/DailyReleaseReport';
@@ -46,13 +56,14 @@ import PurchaseCategorySummary from './Reports/PurchaseCategorySummary';
 
 
 
+
+
 const App=()=>{
       return(
         <div className="container">
           <BrowserRouter>
               <Routes>
-                  <Route path='/'  element={<Dashboard/>} />
-                  <Route path='/item/create'  element={<Item />} />
+                  <Route path='/'  element={<Dashboard/>} />                  
 
                   <Route path='/sales/create'  element={<Sales />} />
                   <Route path='/sales/list'  element={<SalesList />} />
@@ -63,17 +74,32 @@ const App=()=>{
                   <Route path='/expense/edit/:id'  element={<EditExpense />} />
 
                   <Route path='/purchase/list'  element={<PurchaseList />} />
+                  <Route path="/no/inventory/purchase/list" element={<PurchasesNotInventoryList />} />
                   <Route path='/purchase/create'  element={<Purchase />} />
+                  <Route path='/purchase/bulk/create'  element={<BulkPurchase />} />
                   <Route path='/purchase/edit/:id'  element={<EditPurchase />} />
+                  <Route path='/purchase/new'  element={<NewPurchase />} />
+                  
 
                   <Route path='/inventory/list'  element={<InventoryList />} />
+                  <Route path='/inventory/status/list'  element={<InventoryStatusList />} />
                   <Route path='/inventory/release/:id'  element={<ReleaseInventory />} />
                   <Route path='/inventory/view/:id'  element={<ViewInventory />} />
+                  <Route path='/inventory/create/:id'  element={<CreateInventory />} />
+                  <Route path='/inventory/edit/:id'  element={<EditInventory />} />
+                  <Route path='/inventory/release/list'  element={<ReleaseList />} />
 
+                  <Route path='/item/create'  element={<Item />} />
                   <Route path='/item/list'  element={<ItemList />} />
                   <Route path='/item/edit/:id'  element={<EditItem />} />
 
+                  <Route path='/product/create'  element={<CreateProduct />} />
+                  <Route path='/product/list'  element={<ProductList />} />
+
                   <Route path='/admin' element={<AdminHome />} />
+
+                  <Route path='/user/register' element={<AddUser/>} />
+                  <Route path='/user/list' element={<UserList />} />
 
                   <Route path='/reports' element={<ReportsHome />} />
                   <Route path='/reports/daily/release' element={<DailyReleaseReport />} />

@@ -28,8 +28,10 @@ const CurrentCashFlowPosition = () => {
   
         // check if API returns array or object
         if (Array.isArray(response.data)) {
+          console.log('success : response data : ', response.data);
           setList(response.data[0] || {});
         } else {
+          console.log(" failure ; else block : ", response.data);
           setList(response.data || {});
         }
       } catch (error) {
@@ -62,20 +64,20 @@ const CurrentCashFlowPosition = () => {
             </thead>
             <tbody>                
                 <tr>
-                  <td className='align-c fs-18 plr-50 w-200'>Sales</td>                  
+                  <td className='align-l fs-18 plr-50 w-200 tt-c'>Sales</td>                  
                   <td className="align-r fs-18 plr-50 w-200">{(list.salesTotal ?? 0).toFixed(2)}</td>
 
                 </tr>
                 <tr>
-                  <td className='align-c fs-18 plr-50 w-200'>Purchases</td>
+                  <td className='align-l fs-18 plr-50 w-200 tt-c'>Purchases</td>
                   <td className="align-r fs-18 plr-50 w-200">{(list.purchasesTotal ?? 0).toFixed(2)}</td>
                 </tr>
                 <tr>
-                  <td className='align-c fs-18 plr-50 w-200'>Expenses</td>
+                  <td className='align-l fs-18 plr-50 w-200 tt-c'>Expenses</td>
                   <td className="align-r fs-18 plr-50 w-200">{(list.expensesTotal ?? 0).toFixed(2)}</td>
                 </tr>
                 <tr>
-                  <td className='align-c fs-18 plr-50 w-200'>{list.type}</td>
+                  <td className='align-l fs-18 plr-50 w-200 tt-c'>{list.type}</td>
                   <td className="align-r fs-18 plr-50 w-200">{(list.amount ?? 0).toFixed(2)}</td>
                   
                 </tr>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import axios from 'axios';
-import { validateDate, formatDate} from '../../Functions/commonFunctions';
+import { validateDate, formatDate} from '../../../Functions/commonFunctions';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Navbar from '../../Component/Navbar';
-import Footer from '../../Component/Footer';
+import Navbar from '../../../Component/Navbar';
+import Footer from '../../../Component/Footer';
 
 const EditPurchase = () =>{    
     const {id}=useParams();
@@ -85,8 +85,8 @@ useEffect(()=>{
     <div className="page-container">
         <Navbar />
          <div  className="back-btn-div">
-            <button className="btn-div">
-                <Link className="link-btn" to={'/admin'}>Back</Link>
+            <button>
+                <Link className="link click-btn btn-danger" to={'/admin'}>Back</Link>
             </button>
       </div>  
       <div>{message}</div>     
@@ -207,7 +207,7 @@ useEffect(()=>{
                 <div className="form-input-div flex-center">
                         <button
                             onClick={submitHandler}
-                            className="btn-div"                            
+                            className="click-btn btn-danger"                            
                         >Submit</button>
                 </div>
             </form>

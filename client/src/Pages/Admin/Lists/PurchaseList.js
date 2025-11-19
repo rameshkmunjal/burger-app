@@ -1,16 +1,16 @@
 /* importing dependencies */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 
 /* importing components */
-import {MonthsArray} from '../Component/MonthsArray';
-import DateSearchBar from '../Component/DateSerachBar';
-import Footer from '../Component/Footer';
-import Navbar from '../Component/Navbar';
+import {MonthsArray} from '../../../Component/MonthsArray';
+import DateSearchBar from '../../../Component/DateSerachBar';
+import Footer from '../../../Component/Footer';
+import Navbar from '../../../Component/Navbar';
 
 /*importing common functions*/
-import { capitaliseFirstLetter, convertObj2Date } from '../Functions/commonFunctions';
+import { capitaliseFirstLetter, convertObj2Date } from '../../../Functions/commonFunctions';
 
 const PurchaseList = () => {
   const url = 'http://localhost:5000';
@@ -25,6 +25,8 @@ const PurchaseList = () => {
   const [list, setList] = useState([]);
   const [grandTotal, setGrandTotal]=useState([]);
   const [message, setMessage] = useState('');
+
+  const navigate=useNavigate();
 
   useEffect(() => {    
     const getPurchaseList = async () => {
@@ -100,7 +102,7 @@ const PurchaseList = () => {
       <td className="align-r">{i.amount.toFixed(2)}</td>
             
       <td className="align-c">
-        <button className="btn-div">
+        <button>
           <Link className="click-btn btn-danger link" to={`/purchase/edit/${i.id}`}>
             Edit
           </Link>
@@ -126,9 +128,7 @@ const PurchaseList = () => {
     <div className="page-container">
       <Navbar />
       <div className="back-btn-div">
-            <button className="btn-div">
-            <Link className="link-btn" to={'/admin'}>Back</Link>
-            </button>
+            <button className="click-btn btn-danger" onClick={()=>{navigate(-1)}}>Back</button>
       </div> 
       <div className="search-div">
         <DateSearchBar onSearch={handleInput} />

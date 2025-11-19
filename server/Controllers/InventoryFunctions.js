@@ -6,7 +6,7 @@ export const mergeArraysByKey = (arr1, arr2) => (
       const matches = arr2.filter(pl => il.id === pl.id);
       //console.log('matches : ', matches);
       const merged = matches.map(pl => ({
-        id: il.id,
+        id: pl.id,
         buyDate: pl.buyDate,
         amount: pl.amount,
         category: pl.category,
@@ -16,11 +16,100 @@ export const mergeArraysByKey = (arr1, arr2) => (
         balanceQty: il.balanceQty,
         releaseQty: il.releaseQty,
         balanceAmt: il.balanceAmt,
-        releaseAmt: il.releaseAmt
+        releaseAmt: il.releaseAmt,
+        status:il.status,
+        releases:il.releases
       }));
       return acc.concat(merged);
     }, [])
   );
+
+// To get Inventory Status List - using PurchaseList and InventoryList
+  //To get Sub Totals On Current Quantity 
+  // To get Inventory Status List - using PurchaseList and InventoryList
+export const getStatusListByKey = (arr1, arr2) => {
+  // Step 1: Merge matching records
+  const mergedList = arr1.reduce((acc, il) => {
+    const matches = arr2.filter(pl => il.id === pl.id);
+    const merged = matches.map(pl => ({
+      itemCode: pl.itemCode,
+      category: pl.category,
+      itemName: pl.itemName,
+      currentQty: Number(il.balanceQty) * Number(pl.unitDesc || 1)
+    }));
+    return acc.concat(merged);
+  }, []);
+
+  // Step 2: Combine by itemCode (sum currentQty)
+  const combinedMap = {};
+
+  mergedList.forEach(item => {
+    if (!item) return;
+    const { itemCode, category, itemName, currentQty } = item;
+
+    if (!combinedMap[itemCode]) {
+      combinedMap[itemCode] = { itemCode, category, itemName, currentQty: 0 };
+    }
+    combinedMap[itemCode].currentQty += currentQty;
+  });
+
+  // Step 3: Convert to array and sort by itemCode
+  const result = Object.values(combinedMap).sort((a, b) =>
+    a.itemCode.localeCompare(b.itemCode)
+  );
+
+  return result;
+};
+
+//Function to combine inventory data with item list
+  // to get minimum level amd maximum level of stock
+  //ipl=inventory purchase combined list, il = itemList
+// Function to combine inventory data with item list
+// ipl = inventory-purchase combined list, il = itemList
+export const combineWithItemList = (arr1, arr2) => {
+  return arr1.map(ipl => {
+    const match = arr2.find(il => il.itemCode === ipl.itemCode);
+
+    const minLevel = match ? Number(match.minLvl) : 0;
+    const maxLevel = match ? Number(match.maxLvl) : 0;
+    const currentQty = Number(ipl.currentQty);
+
+    // Determine status using ternary operator chain
+    const status =
+      currentQty === 0
+        ? 'out'
+        : currentQty < minLevel
+        ? 'low'
+        : currentQty >= minLevel && currentQty < maxLevel
+        ? 'add more'
+        : 'full';
+        
+   
+  
+
+    return {
+      itemCode: ipl.itemCode,
+      category: ipl.category,
+      itemName: ipl.itemName,
+      currentQty,
+      minLevel,
+      maxLevel,
+      status
+    };
+  });
+};
+  
+export const addBuyRecommendation = (arr) => {
+  return arr.map(item => {
+    const rb = item.status !== 'full' ? item.maxLevel - item.currentQty : 0;
+    return { ...item, recommendedBuyQty: rb };
+  });
+};
+
+  
+  
+  
+  
 
   // ✅ Merge release data with purchase list
   export const mergeReleasedDataWithPurchaseList = (releases, purchases) =>
@@ -48,6 +137,7 @@ export const getReleaseMasterData = arr =>{
       const date = r.releaseDate;
       return {
         id: item.id,
+        serial:date.getTime()/1000,
         day: date.getDate(),
         month: date.toLocaleString("default", { month: "long" }),
         year: date.getFullYear(),

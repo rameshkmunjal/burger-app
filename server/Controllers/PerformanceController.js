@@ -3,6 +3,7 @@ import SaleModel from '../Schema/sales.js';
 import PurchaseModel from '../Schema/purchase.js';
 import ExpenseModel from '../Schema/expense.js';
 import InventoryModel from '../Schema/inventory.js';
+import mongoose from '../db.js';
 
 /* importing functions from other modules */
 import {
@@ -95,7 +96,7 @@ export const getMonthlyCashFlowReport=async(req, res)=>{
             cashFlowType='cash outflow';
             amount=(purchasesTotal+expensesTotal)-salesTotal;
         }
-    console.log('type:',cashFlowType, 'amount:' , amount, 'salesTotal:', salesTotal, 'expensesTotal:', expensesTotal, 'purchasesTotal:', purchasesTotal);
+    //console.log('type:',cashFlowType, 'amount:' , amount, 'salesTotal:', salesTotal, 'expensesTotal:', expensesTotal, 'purchasesTotal:', purchasesTotal);
         res.json({type:cashFlowType, amount:amount, salesTotal:salesTotal, expensesTotal:expensesTotal, purchasesTotal:purchasesTotal})
     } catch (error) {
         //console.error("Error in getMonthlyCashFlowReport:", error);
@@ -170,3 +171,5 @@ export const getMonthlyProfitAndLossReport=async(req, res)=>{
     }
       
 }
+
+

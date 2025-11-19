@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "../db.js";
 const Schema = mongoose.Schema;
 
 const saleSchema=new Schema({
@@ -8,5 +8,8 @@ const saleSchema=new Schema({
     outlet:{type:String, default:''} ,// Big Burly, Chatora Point  etc  
 })
 
-const SaleModel = mongoose.model('sale', saleSchema);
+//const SaleModel = mongoose.model('sale', saleSchema);
+//export default SaleModel;
+
+const SaleModel = mongoose.model('sale', saleSchema, 'sales'); // 👈 third arg is actual collection name
 export default SaleModel;

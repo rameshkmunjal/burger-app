@@ -37,7 +37,14 @@ const YearlyReleaseReport = () => {
   useEffect(()=>{
     let todayDate=new Date();
     setYear(findFyOfDate(todayDate.getMonth()+1, todayDate.getFullYear()));
-  },[])
+  },[]);
+
+  function doGrandTotal(arr){    
+    const gt = arr.reduce((accumulator, currentObject) => {
+      return accumulator + currentObject.amount;
+    }, 0); 
+    return gt;
+  }
 
   function handleInput(y) {
     console.log(' year : ', y);
@@ -48,11 +55,11 @@ const YearlyReleaseReport = () => {
     <tr className="align-c" key={i.id}>          
       <td>{i.date}</td>
       <td>{i.itemId}</td>
-      <td className="tt-c">{i.category}</td> 
-      <td>{i.itemName}</td>
+      <td className="tt-c align-l">{i.category}</td> 
+      <td className="align-l tt-c">{i.itemName}</td>
       <td>{i.unitDesc} {i.measType}</td> 
       <td>{i.quantity}</td> 
-      <td>{i.amount}</td> 
+      <td className="align-r">{i.amount.toFixed(2)}</td> 
       <td>{i.releasedTo}</td> 
       <td>{i.releasedBy}</td>                           
     </tr>
@@ -62,8 +69,8 @@ const YearlyReleaseReport = () => {
     <div className="page-container">
       <NavBar />
       <div className="back-btn-div">
-        <button className="btn-div">
-          <Link className="link-btn" to={'/reports'}>Back</Link>
+        <button>
+          <Link className="link click-btn btn-danger" to={'/reports'}>Back</Link>
         </button>
       </div>
       <div className="search-div">
@@ -89,7 +96,16 @@ const YearlyReleaseReport = () => {
               <th>Released By</th>
             </tr>
           </thead>
-          <tbody>{renderedList}</tbody>
+          <tbody>
+            {renderedList}
+            <tr>
+              <td colSpan={6} className="fs-18 align-c fw-b">Total</td>
+              <td className="fw-b fs-18 align-r">
+                {doGrandTotal(releaseList).toFixed(2)}  
+              </td>
+              <td colSpan={2}></td>  
+            </tr>  
+          </tbody>
         </table>
       )}
 

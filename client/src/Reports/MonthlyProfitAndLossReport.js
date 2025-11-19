@@ -29,8 +29,8 @@ const MonthlyProfitAndLossReport = () => {
     <div className="page-container">
       <Navbar />
       <div className="back-btn-div">
-        <button className="btn-div">
-          <Link className="link-btn" to={"/admin"}>Back</Link>
+        <button>
+          <Link className="link click-btn btn-danger" to={"/admin"}>Back</Link>
         </button>
       </div>
       <div className="search-div">

@@ -49,7 +49,7 @@ const DateSearchBar = ({ onSearch }) => {
                 ))}
           </select>
         </div>
-        <button type="submit" disabled={!month}>Submit</button>
+        <button  className="click-btn btn-danger  " type="submit" disabled={!month}>Submit</button>
         
     </form>
   );

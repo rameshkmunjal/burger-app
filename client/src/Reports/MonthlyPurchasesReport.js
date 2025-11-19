@@ -93,8 +93,8 @@ const MonthlyPurchasesReport = () => {
     <div className="page-container">
       <Navbar />
       <div className="back-btn-div">
-        <button className="btn-div">
-          <Link className="link-btn" to={'/reports'}>Back</Link>
+        <button>
+          <Link className="link click-btn btn-danger" to={'/reports'}>Back</Link>
         </button>
       </div>
       <div className="search-div">

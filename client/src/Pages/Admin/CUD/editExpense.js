@@ -1,9 +1,9 @@
-import Navbar  from '../../Component/Navbar';
-import Footer  from '../../Component/Footer';
+import Navbar  from '../../../Component/Navbar';
+import Footer  from '../../../Component/Footer';
 import React, { useEffect, useState} from 'react';
 import axios from 'axios';
 import { Link, useNavigate , useParams} from 'react-router-dom';
-import { validateDate, formatDate} from '../../Functions/commonFunctions';
+import { validateDate, formatDate} from '../../../Functions/commonFunctions';
 
 const Expense = () =>{    
     const {id}=useParams();
@@ -70,8 +70,8 @@ const Expense = () =>{
         
            <Navbar />
            <div className="back-btn-div">
-            <button className="btn-div">
-              <Link className="link-btn" to={'/admin'}>Back</Link>
+            <button>
+              <Link className="link click-btn btn-danger" to={'/admin'}>Back</Link>
             </button>
           </div>  
           <div>{message}</div>    

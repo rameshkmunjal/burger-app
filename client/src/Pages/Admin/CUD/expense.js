@@ -1,9 +1,9 @@
-import Navbar  from '../../Component/Navbar';
-import Footer  from '../../Component/Footer';
+import Navbar  from '../../../Component/Navbar';
+import Footer  from '../../../Component/Footer';
 import React, { useState} from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { validateDate, formatDate } from '../../Functions/commonFunctions';
+import { validateDate, formatDate } from '../../../Functions/commonFunctions';
 
 const Expense = () =>{    
     const [day, setDay]=useState(0);

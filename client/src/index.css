@@ -1,20 +1,21 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 *{
   margin:0;
   padding:0;
+  box-sizing: border-box;
+  font-family:var(--font-main);
+  font-size:var(--font-size-default);
+}
+:root{
+  --clr-btn-hover:purple;
+  --clr-main: rgb(146,7,7);
+  --clr-text:white;
+  --font-main:Arial, Helvetica, sans-serif;
+  --font-size-default:12px;
 }
 
 /*   */
 .page-container {
-  background-color: white;
+  background-color:var(--clr-text);
 }
 .content-container{
   padding-top:5px;
@@ -24,6 +25,7 @@ body {
 .back-btn-div{
   padding:20px ;
 }
+
 
 .btn-div{
   font-weight:bold;
@@ -38,7 +40,7 @@ body {
 
 .btn-div:hover{
   padding:5px 10px;
-  background-color:purple;
+  background-color: var(--clr-btn-hover);
   color:aliceblue;
   margin-top:5px;
   border:none;
@@ -47,7 +49,7 @@ body {
 }
 
 .btn-div-link{
-  color:white;
+  color:var(--clr-text);
   text-decoration: none;
 }
 
@@ -64,7 +66,7 @@ body {
 
 .link-btn{
   text-decoration: none;
-  color:white;
+  color:var(--clr-text);
 }
 .align-c{
   text-align: center;
@@ -79,8 +81,8 @@ body {
 /*---Table : CSS Ruling---*/
 
 .tbl {
-  font-size:10px;
-  width:80%;
+  font-size:8px;
+  width:95%;
   border: 1px solid #ccc;
   border-collapse: collapse;
   margin-top: 1rem;
@@ -91,7 +93,7 @@ body {
 .tbl td,
 .tbl th {
 	border: 1px solid #ccc;
-	padding:10px;
+	padding:5px;
 }
 
 
@@ -148,6 +150,10 @@ body {
   justify-content: flex-end;
   align-items: center;
   }
+  .flex-between{
+    display:flex;
+    justify-content: space-between;
+  }
   
   /* inventory css */
   button{
@@ -163,8 +169,8 @@ body {
   
   .back-btn{
     text-align: center;
-    color:white;
-    background-color: rgb(146,7,7);
+    color:var(--clr-text);
+    background-color: var(--clr-main);
     border-radius: 20px;
     margin-top:20px;
     margin-left:100px;
@@ -174,7 +180,7 @@ body {
   
   .back-btn:hover{
     cursor:pointer;
-    color:white;
+    color:var(--clr-text);
     background-color: rgb(66, 0, 128);
     padding:5px 20px;
   }
@@ -193,8 +199,8 @@ body {
   .form-container form h1{
     margin-bottom:20px;
     text-align: center;
-    background-color: rgb(146,7,7);
-    color:white;
+    background-color: var(--clr-main);
+    color:var(--clr-text);
     padding:20px 0;
   }
 
@@ -222,8 +228,8 @@ li{
 ul h2{  
     padding:12px 36px;  
     border-bottom:1px solid #ccc;
-    background:rgb(146, 7, 7);
-    color:white;
+    background:var(--clr-main);
+    color:var(--clr-text);
     font-size:20px;
     border-radius:10px 10px 0 0 ;
 }
@@ -299,8 +305,8 @@ li .report-link{
   display:flex;
   justify-content: space-between;
   align-items: center;
-  background:rgb(146, 7, 7);
-  color:white;
+  background:var(--clr-main);
+  color:var(--clr-text);
   font-size:24px;
   font-weight:bold;
   margin-left:auto;
@@ -326,15 +332,11 @@ li .report-link{
   font-size: 1rem;
 }
 
-.info-container{
-  display:flex;
-  margin-bottom:30px;
-  padding-bottom:30px;
-  border-bottom:1px solid #ccc;  
+.info-div {
+  min-height: 350px; /* ensures chart is visible */
+  min-width:0;
 }
-.info-div{
-  padding:20px;
-}
+
 
 .plr-50{
   padding-right:30px;
@@ -423,12 +425,12 @@ li .report-link{
 
 /* ❌ Danger (Delete) */
 .btn-danger {
-  background-color: #e63946;
+  background-color: var(--clr-main);
   color: #fff;
 }
 
 .btn-danger:hover {
-  background-color: #c92a3a;
+  background-color: var(--clr-btn-hover);
 }
 
 /* ⚪ Neutral (Cancel) */
@@ -466,5 +468,66 @@ li .report-link{
 }
 
 .link:hover{
-  background-color:purple;
+  background-color:var(--clr-btn-hover);
+}
+
+.input-container{
+  width:400px;
+  display:flex;
+  flex-direction: column;
+  margin-left:auto;
+  margin-right:auto;
+  margin-top:30px;
+  background-color: beige;
+  padding:10px;
+}
+.input-container h2{
+  text-align: center;
+  margin-bottom:15px;
+  font-size:30px;
+}
+.input-container input{
+  margin-bottom:20px;
+  width:80%;
+  height:20px; 
+  border:1px solid #ccc;
+  padding:5px 20px;
+}
+.input-container button{
+  margin-top:10px;
+  margin-bottom:10px;
+  height:40px;
+}
+
+h1{
+  font-size:3rem;
+  margin-bottom:1rem;
+}
+
+.btn-yellow{
+  background-color: goldenrod;
+}
+.btn-purple{
+  background-color: purple;
+}
+.btn-gold{
+  background-color: gold;
+}
+
+.sub-container{
+  display: flex;
+}
+.bg-1{
+  background-color: var(--clr-main);
+  color:var(--clr-text);
+}
+.bor-rad-5{
+  border-radius: 5px;
+}
+.p-10{
+  padding:10px;
+}
+.status-btn{
+  width:100px;
+  border-radius: 5px;
 }

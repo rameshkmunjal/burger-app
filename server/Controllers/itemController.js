@@ -1,12 +1,13 @@
 import ItemModel from '../Schema/itemNew.js';
 import shortId from 'shortid';
+import { sortOnProdCode } from './CommonFunctions.js';
 
 export const createItem=async(req, res)=>{
-    const {prodCode, itemName, category,  minLvl, maxLvl} = req.body;
+    const {prodCode, itemCode, itemName, category, measType,  minLvl, maxLvl} = req.body;
     console.log("payload inside createItem req body :", prodCode, itemName, category,  minLvl, maxLvl); 
     const id=shortId.generate();
       
-    const i = await ItemModel.create({id, prodCode, itemName, category,  minLvl, maxLvl});
+    const i = await ItemModel.create({id, prodCode, itemCode, itemName, category, measType,  minLvl, maxLvl});
     
     
 
@@ -15,8 +16,10 @@ export const createItem=async(req, res)=>{
         res.status(201).json({
             id:i.id,
             prodCode:i.prodCode,
+            itemCode:i.itemCode,
             itemName:i.itemName,
             category:i.category,
+            measType:i.measType,
             minLvl:i.minLvl,
             maxLvl:i.maxLvl
         })
@@ -29,7 +32,7 @@ export const createItem=async(req, res)=>{
 
 /* PUT API to EDIT item  */
 export const editItem=async(req, res)=>{
-    const {id, prodCode, itemName, category,  minLvl, maxLvl} = req.body;
+    const {id, prodCode, itemCode, itemName, category, measType,  minLvl, maxLvl} = req.body;
     console.log(id, prodCode, itemName, category,  minLvl, maxLvl);    
     
 
@@ -40,8 +43,10 @@ export const editItem=async(req, res)=>{
     if (i) {
         i.id=id, 
         i.prodCode=prodCode,
+        i.itemCode=itemCode,
         i.itemName=itemName, 
         i.category=category,
+        i.measType=measType,
         i.minLvl=minLvl,
         i.maxLvl=maxLvl;
 
@@ -60,9 +65,9 @@ export const editItem=async(req, res)=>{
 /* GET API to get item info list */
 export const getItemList=async(req, res)=>{
     const itemList=await ItemModel.find();
-    //console.log(itemList);
-    if(itemList){
-        res.json(itemList);
+    const list = sortOnProdCode(itemList);
+    if(list){
+        res.json(list);
     } else {
         res.status(404);
         throw new Error('itemList Not Found');

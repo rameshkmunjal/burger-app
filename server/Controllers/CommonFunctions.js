@@ -77,6 +77,19 @@ export const sortList=(arr)=> {
   return arr;
 }
 
+export const sortOnProdCode=(arr)=> {    
+  arr.sort((a, b) => {
+    if (a.prodCode < b.prodCode) {
+      return -1;
+    }
+    if (a.prodCode > b.prodCode) {
+      return 1;
+    }
+    return 0;
+  });
+  return arr;
+}
+
 
 
 export const getTimeInSeconds=(dateStr)=>{

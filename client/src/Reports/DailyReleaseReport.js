@@ -61,12 +61,12 @@ const DailyReleaseReport = () => {
         <td className="align-r">{item.balanceAmt.toFixed(2)}</td>
         <td className="align-r">{item.releaseAmt.toFixed(2)}</td>
         <td className="align-c">
-          <button className="btn-div" >
-              <Link to={`/inventory/release/${item.id}`} className="btn-div-link">Release</Link>
+          <button>
+              <Link to={`/inventory/release/${item.id}`} className="link click-btn btn-danger">Release</Link>
           </button>
         </td>
         <td className="align-c">
-          <button className="btn-div" 
+          <button className="click-btn btn-danger" 
                   onClick={
                     (e)=>{
                       e.preventDefault(); 
@@ -84,8 +84,8 @@ const DailyReleaseReport = () => {
     <div className="page-container">
     <Navbar/>
     <div className="back-btn-div">
-            <button className="btn-div">
-            <Link className="link-btn" to={'/reports'}>Back</Link>
+            <button>
+            <Link className="link click-btn btn-danger" to={'/reports'}>Back</Link>
             </button>
     </div>  
       {message && (

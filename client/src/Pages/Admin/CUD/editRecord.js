@@ -1,14 +1,18 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
-import { validateDate, formatDate} from '../../Functions/commonFunctions';
+import { validateDate, formatDate} from '../../../Functions/commonFunctions';
 import { Link, useNavigate } from 'react-router-dom';
-import Navbar from '../../Component/Navbar';
-import Footer from '../../Component/Footer';
+import Navbar from '../../../Component/Navbar';
+import Footer from '../../../Component/Footer';
 
-const Purchase = () =>{    
-    const [year, setYear]=useState(2025);
-    const [month, setMonth]=useState(0);
+const EditRecord = () =>{ 
+    const itemIdParam="50600300";
+
+    const [message, setMessage]=useState('');
     const [day, setDay]=useState(0);
+    const [month, setMonth]=useState(0);
+    const [year, setYear]=useState(0);
+    
     const [itemCode, setItemCode] = useState('');
     const [itemName, setItemName] = useState('');
     const [category, setCategory] = useState('');
@@ -20,9 +24,41 @@ const Purchase = () =>{
 
     const navigate=useNavigate();
 
-    const baseUrl = "http://localhost:5000";
+    const url = "http://localhost:5000";
     
 //const date = new Date("2025-07-18");
+
+useEffect(()=>{
+    
+    const getSinglePurchaseDetails=async()=>{
+        try{
+            const response=await axios.get(`${url}/purchase/record/${itemIdParam}`);
+            console.log(response.data);
+            const item=response.data;
+            if(response.data){
+                setMessage('');
+                //setMonth(item.buyDate.getMonth()+1);
+                setDay(item.day);
+                setMonth(item.month);
+                setYear(item.year);
+                setItemCode(item.itemCode);
+                setAmount(item.amount);
+                setCategory(item.category);
+                setItemName(item.itemName);
+                setMeasType(item.measType);
+                setQuantity(item.quantity);
+                setSource(item.source);
+                setUnitDesc(item.unitDesc);
+            } else{
+                setMessage('response data not  received');
+            }            
+        }catch(error){
+            setMessage('Error Happened : ', error);
+        }        
+    }
+    
+    getSinglePurchaseDetails();
+}, [itemIdParam]);
 
     const submitHandler = async(e) =>{
             console.log("create button clicked");
@@ -37,7 +73,7 @@ const Purchase = () =>{
                         amount
                     }; 
                 console.log(data);            
-                const response = await axios.post(`${baseUrl}/purchase/create`, data);
+                const response = await axios.put(`${url}/record/edit/${itemIdParam}`, data);
                 console.log(response.data); 
                 navigate('/purchase/list');
             } else {
@@ -50,13 +86,14 @@ const Purchase = () =>{
     <div className="page-container">
         <Navbar />
          <div  className="back-btn-div">
-            <button className="btn-div">
-                <Link className="link-btn" to={'/admin'}>Back</Link>
+            <button>
+                <Link className="link click-btn btn-danger" to={'/admin'}>Back</Link>
             </button>
-      </div>       
+      </div>  
+      <div>{message}</div>     
         <div className="form-container">            
             <form className="create-inventory-form">
-                <h1 className="centered">Create Purchase</h1> 
+                <h1 className="centered">Edit Purchase</h1> 
 
                 <div className="form-input-div">
                     <label>Date</label>
@@ -94,9 +131,6 @@ const Purchase = () =>{
                         <option value="frozen">Frozen Food</option>
                         <option value="sauces">Sauces Syrups</option> 
                         <option value="drinks">Cold Drinks</option> 
-                        <option value="bakery">Bakery</option> 
-                        <option value="vegetables">Vegetables</option> 
-                        <option value="dairy">Dairy</option> 
                         <option value="products">Products</option>                       
                     </select>
                 </div>
@@ -186,5 +220,5 @@ const Purchase = () =>{
  }
 
 
-export default Purchase;
+export default EditRecord;
 

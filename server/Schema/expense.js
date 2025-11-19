@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "../db.js";
 const Schema = mongoose.Schema;
 
 const expenseSchema=new Schema({

@@ -19,33 +19,26 @@ const ProfitAndLossTable = ({ monthName, year, list, onDownload }) => {
         </thead>
         <tbody>
           <tr>
-            <td className="align-c fs-18 plr-50 w-200">Sales</td>
+            <td className="align-l fs-18 plr-50 w-200">Sales</td>
             <td className="align-r fs-18 plr-50 w-200">{list.salesTotal?.toFixed(2)}</td>
           </tr>
           <tr>
-            <td className="align-c fs-18 plr-50 w-200">RM Consumed</td>
+            <td className="align-l fs-18 plr-50 w-200">RM Consumed</td>
             <td className="align-r fs-18 plr-50 w-200">{list.consumptionTotal?.toFixed(2)}</td>
           </tr>
           <tr>
-            <td className="align-c fs-18 plr-50 w-200">Expenses</td>
+            <td className="align-l fs-18 plr-50 w-200">Expenses</td>
             <td className="align-r fs-18 plr-50 w-200">{list.expensesTotal?.toFixed(2)}</td>
           </tr>
           <tr>
-            <td className="align-c fs-18 plr-50 w-200">{list.type}</td>
+            <td className="align-l fs-18 plr-50 w-200 tt-c">{list.type}</td>
             <td className="align-r fs-18 plr-50 w-200">{list.amount?.toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
 
       {/* Action button */}
-      {onDownload && (
-        <button
-          className="mt-4 px-3 py-1 bg-blue-600 text-white rounded"
-          onClick={onDownload}
-        >
-          Download Report
-        </button>
-      )}
+      
     </div>
   );
 };

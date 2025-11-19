@@ -1,51 +1,83 @@
-import Navbar  from '../../Component/Navbar';
-import Footer  from '../../Component/Footer';
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { validateDate, formatDate } from '../../Functions/commonFunctions';
+import { validateDate, formatDate} from '../../../Functions/commonFunctions';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Navbar from '../../../Component/Navbar';
+import Footer from '../../../Component/Footer';
 
-const Sales = () =>{    
+const EditSales = () =>{    
+    const {id}=useParams();
+    console.log(id);
+    const [message, setMessage]=useState('');
     const [day, setDay]=useState(0);
     const [month, setMonth]=useState(0);
     const [year, setYear]=useState(0);
-    const [outlet, setOutlet] = useState('');    
-    const [amount, setAmount] = useState('');
+    const [outlet, setOutlet]=useState('');
+    const [amount, setAmount] = useState(0);
+
     const navigate=useNavigate();
 
     const url = "http://localhost:5000";
     
+//const date = new Date("2025-07-18");
+
+useEffect(()=>{
+    const getSingleSalesDetails=async()=>{
+        try{
+            const response=await axios.get(`${url}/sales/${id}`);
+            console.log(response.data);
+            const item=response.data;
+            if(response.data){
+                setMessage('');
+                setDay(item.day);
+                setMonth(item.month);
+                setYear(item.year);
+                setAmount(item.amount);
+                setOutlet(item.outlet);
+                //setDate(item.saleDate);
+            } else{
+                setMessage('response data not  received');
+            }            
+        }catch(error){
+            setMessage('Error Happened : ', error);
+        }        
+    }
+    
+    getSingleSalesDetails();
+}, [id]);
+
     const submitHandler = async(e) =>{
-        console.log("create button clicked");
+            console.log("create button clicked");
             e.preventDefault();
             
             if(validateDate(year, month, day)){
                 let date=formatDate(year, month, day);
                 console.log(date);
                 let data={
-                        date,  outlet, amount
+                       id, date,  outlet, amount
                     }; 
                 console.log(data);            
-                const response = await axios.post(`${url}/sales/create`, data);
+                const response = await axios.put(`${url}/sales/edit/${id}`, data);
                 console.log(response.data); 
                 navigate('/sales/list');
             } else {
                 console.log("input date invalid");                
-            }
-    }       
+            }                         
+    }   
+
     
     return (
-        <>
-        
-           <Navbar />
-           <div className="back-btn-div">
-            <button className="btn-div">
-              <Link className="link click-btn btn-danger" to={'/admin'}>Back</Link>
+    <div className="page-container">
+        <Navbar />
+         <div  className="back-btn-div">
+            <button>
+                <Link className="link click-btn btn-danger" to={'/admin'}>Back</Link>
             </button>
-          </div>      
+      </div>  
+      <div>{message}</div>     
         <div className="form-container">            
             <form className="create-inventory-form">
-                <h1 className="centered">Create Sales</h1>                 
+                <h1 className="centered">Edit Sales</h1> 
 
                 <div className="form-input-div">
                     <label>Date</label>
@@ -67,31 +99,25 @@ const Sales = () =>{
                             onChange={(e)=>setYear(e.target.value)}
                             className="form-input year-input" placeholder="Year "
                         />
-                </div>                
-
+                </div> 
                 <div className="form-input-div">
-                    <label>Outlet </label>
-                    <select
-                        className="selectDiv"
-                        value={outlet}
-                        onChange={e => setOutlet(e.target.value)} 
-                    >   
-                        <option>Choose Outlet</option>
-                        <option value="Outlet-76">Outlet-76</option>
-                    </select>                        
+                    <label>Outlet</label>
+                        <input
+                            type="text"
+                            value={outlet}
+                            onChange={(e)=>setOutlet(e.target.value)}
+                            className="form-input" placeholder="Outlet Name"
+                        />
                 </div>
-
-
                 <div className="form-input-div">
                     <label>Amount</label>
                         <input
                             type="text"
                             value={amount}
                             onChange={(e)=>setAmount(e.target.value)}
-                            className="form-input" placeholder="Amount "
+                            className="form-input" placeholder="Amount"
                         />
-                </div>               
-                
+                </div>                
                 
                 <div className="form-input-div flex-center">
                         <button
@@ -103,16 +129,10 @@ const Sales = () =>{
 
             </div>
             <Footer/>
-            </>
+        </div>
     )
  }
 
 
-export default Sales;
+export default EditSales;
 
-// transaction is expense or purchase
-// different form for both
-// form for purchase - fields - seller , item id, amount, quantity of item purchased, meas type
-// form for expenses - fields - reciever of payment, expense id, amount, 
-//opening cash balance , transaction_id, closing cash balance
-// 3 fields to be added - opening cash balance, transaction_id, closing cash balance

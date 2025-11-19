@@ -1,27 +1,46 @@
 import PurchaseModel from '../Schema/purchase.js';
 import InventoryModel from '../Schema/inventory.js';
-import { make5LettersStr, sortList, filteredDataByMonthAndYear, sortOnItemId } from './CommonFunctions.js';
+import { make5LettersStr, filteredDataByMonthAndYear, sortOnItemId } from './CommonFunctions.js';
 import shortId from 'shortid';
 
-import {improvisePurchaseList} from './PurchaseFunctions.js';
+import {
+    improvisePurchaseList, 
+    combineDataWithItemInfo,
+    findPurchasesNotAddedToInventory
+  } from './PurchaseFunctions.js';
 
 import {
   getCategorySummary,
   getCategoryTotal
 } from "./InventoryFunctions.js";
+import ItemModel from '../Schema/itemNew.js';
 
-export const getPurchaseList=async(req, res)=>{
+
+
+
+
+/// ✅ Controller
+export const getNoInventoryPurchaseList = async (req, res) => {
+  try {
     const purchaseList = await PurchaseModel.find().lean();
-    const list=sortList(purchaseList);
+    const inventoryList = await InventoryModel.find().lean();
 
-    if(list){
-        res.json(list);
-    }else {
-        res.status(404);
-        throw new Error ("No Data Found");
+    const list = findPurchasesNotAddedToInventory(purchaseList, inventoryList);
+
+    if (list.length === 0) {
+      return res.status(404).json({ message: "All purchases are already in inventory" });
     }
 
-}
+    res.json({
+      message: "Purchases without inventory records fetched successfully",
+      count: list.length,
+      data: list,
+    });
+  } catch (error) {
+    console.error("❌ Error in getNoInventoryPurchaseList:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
 
 
 export const getMonthlyPurchaseList=async(req, res)=>{
@@ -193,3 +212,43 @@ export const getPurchaseCategorySummary=async(req, res)=>{
   }
 
 }
+
+// ✅ Main function
+export const createBulkPurchase = async (req, res) => {
+  try {
+    const { date, invoiceNo, source, items } = req.body;
+
+    // ✅ Fetch all item master data
+    const itemList = await ItemModel.find().lean();
+
+    // ✅ Merge both arrays
+    const combinedItems = combineDataWithItemInfo(items, itemList);
+
+    // ✅ Prepare documents to insert
+    const dataToInsert = combinedItems.map(item => ({
+      ...item,
+      invoiceNo,
+      date,
+      source,
+      id: shortId.generate(),
+    }));
+
+    // ✅ Bulk insert
+    const result = await PurchaseModel.insertMany(dataToInsert);
+
+    res.status(201).json({ message: "Items inserted successfully", result });
+  } catch (error) {
+    console.error("Error inserting items:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+
+
+
+
+
+
+
+

@@ -1,9 +1,14 @@
 import PurchaseModel from "../Schema/purchase.js";
 import InventoryModel from '../Schema/inventory.js';
+import ItemModel from "../Schema/itemNew.js";
+
 import shortId from 'shortid';
-import { sortOnItemId } from './CommonFunctions.js';
+import { sortOnItemId, sortList } from './CommonFunctions.js';
 import { 
   mergeArraysByKey ,
+  getStatusListByKey,
+  combineWithItemList,
+  addBuyRecommendation,
   getFilteredData,
   getFilteredYealyData,
   getReleaseMasterData,
@@ -13,54 +18,14 @@ import {
   getCategorySummary,
   getCategoryTotal
 } from "./InventoryFunctions.js";
-/*
-export const add2Stock = async (req, res) => {
-  try {
-    const { id } = req.body;
-    const buyItem = await PurchaseModel.findOne({ id });
-
-    if (!buyItem) {
-      return res.status(404).json({ message: "Purchase item not found" });
-    }
-
-    // mark purchase as added to stock
-    buyItem.add2stock = true;
-
-    const inventoryDoc = await InventoryModel.findOneAndUpdate(
-      { id }, // match by unique id
-      {
-        $setOnInsert: {
-          id,
-          balanceQty: buyItem.quantity,
-          releaseQty: 0,
-          balanceAmt: buyItem.amount,
-          releaseAmt: 0,
-          releases: [],
-        },
-      },
-      { new: true, upsert: true } // return updated/created doc
-    );
-
-    await buyItem.save();
-
-    res.json(inventoryDoc);
-  } catch (err) {
-    console.error("❌ Error in add2Stock:", err.message);
-    res.status(500).json({ message: err.message });
-  }
-};
-*/
-
   
 
 export const getInventoryList = async (req, res) => {
     try {
-      const inventoryList = await InventoryModel.find().lean();
+      const inventoryList = await InventoryModel.find({'status':'in-stock'}).lean();
       const purchaseList = await PurchaseModel.find().lean();
-      //console.log('inventory list : ', inventoryList);
-      //console.log('purchase list : ', purchaseList);
   
-    if (!inventoryList || !purchaseList) {
+      if (!inventoryList.length || !purchaseList.length){
         res.status(404);
         throw new Error("inventory or purchase data could not be fetched");
       }
@@ -81,15 +46,47 @@ export const getInventoryList = async (req, res) => {
     }
   };
 
+  export const getInventoryStatusList = async (req, res) => {
+    try {
+      const inventoryList = await InventoryModel.find().lean();
+      const purchaseList = await PurchaseModel.find().lean();
+      const itemList = await ItemModel.find().lean();
+  
+      if (!inventoryList.length || !purchaseList.length){
+        res.status(404);
+        throw new Error("inventory or purchase data could not be fetched");
+      }
+  
+    const purchaseInventoryList = getStatusListByKey(inventoryList, purchaseList);
+    const combinedList=combineWithItemList(purchaseInventoryList, itemList);   
+    const list=addBuyRecommendation(combinedList);
+  
+    if (!list.length) {
+        res.status(404);
+        throw new Error("No matching records found");
+      }
+  
+      //console.log("combined list : ", list);
+      res.json(list); 
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ message: err.message });
+    }
+  };
+
 
   export const getSingleInventoryDetails=async(req, res)=>{
       //res.json("call made successfully");
-      const inventory=await InventoryModel.findOne({'id':req.params.id}).lean();
-      //console.log(inventory);
+      const invList=await InventoryModel.find().lean();
+      console.log(invList);
 
       const purchase=await PurchaseModel.findOne({'id':req.params.id}).lean();
 
-      const obj =inventory.id === purchase.id ? { ...inventory, ...purchase } : null;
+      const itemFound = invList.find(i => i.id === purchase.id);
+      let obj={};
+      if(purchase && itemFound ){
+         obj = { ...itemFound, ...purchase };
+      }      
 
       if(obj !== null){
         res.json(obj);
@@ -98,56 +95,7 @@ export const getInventoryList = async (req, res) => {
         throw new Error('response not received')
       }
   }
-  export const releaseInventory = async (req, res) => {
-    const { currentReleaseQty } = req.body;
-  
-    try {
-      const purchase = await PurchaseModel.findOne({ id: req.params.id }).lean();
-      if (!purchase) {
-        return res.status(404).json({ message: "Purchase not found" });
-      }
-  
-      const unitPrice = Number(purchase.amount) / Number(purchase.quantity);
-      const currentReleaseAmt = Number(currentReleaseQty) * unitPrice;
-      const releaseId = shortId.generate();
-  
-      const releaseEntry = {
-        releaseId,
-        qty: Number(currentReleaseQty),
-        amt: Number(currentReleaseAmt),
-        releaseDate: Date.now(),
-        releasedTo: "Outlet-76",
-        releasedBy: "Bubhuksha Foods",
-      };
-  
-      const updatedItem = await InventoryModel.findOneAndUpdate(
-        { id: req.params.id }, // match existing inventory
-        {
-          $push: { releases: releaseEntry },
-          $inc: {
-            balanceQty: -Number(currentReleaseQty),
-            releaseQty: Number(currentReleaseQty),
-            balanceAmt: -currentReleaseAmt,
-            releaseAmt: currentReleaseAmt,
-          },
-        },
-        { new: true } // update only, no insert
-      ).lean();
-  
-      if (!updatedItem) {
-        return res.status(404).json({ message: "Inventory record not found" });
-      }
-  
-      //console.log("✅ updatedItem:", updatedItem);
-  
-      const obj =
-        updatedItem.id === purchase.id ? { ...updatedItem, ...purchase } : null;
-      res.json(obj);
-    } catch (err) {
-      console.error("❌ Error in releaseInventory:", err);
-      res.status(500).json({ message: "Server error", error: err.message });
-    }
-  };
+ 
   
 
   // API Call : to get monthly release list
@@ -173,7 +121,7 @@ export const getInventoryList = async (req, res) => {
       const mergedData = mergeReleasedDataWithPurchaseList(releaseMasterData, purchaseList);
   
       // Step 3: Filter by month/year
-      const revisedList = getFilteredData(mergedData, month, year);
+      const revisedList = sortList(getFilteredData(mergedData, month, year));
       const list= Array.isArray(revisedList) ? revisedList : [];
       const gt = getReleaseItemsAmountTotal(revisedList);
   
@@ -240,7 +188,7 @@ export const deleteInventory= async (req, res) => {
 export const getCategoryWiseReleaseReport=async(req, res)=>{    
   const { month, year } = req.params;
     //console.log("month and year ", month, year);
-  
+ //const inventoryList = await InventoryModel.find({ status: 'in-stock' }).lean(); 
     try {
       const [invList, purchaseList] = await Promise.all([
         InventoryModel.find().lean(),
@@ -272,42 +220,11 @@ export const getCategoryWiseReleaseReport=async(req, res)=>{
     res.status(500).json({ message: "Server error" });
   }        
 }
-/*
-export const getInventoryCategorySummary=async(req, res)=>{
-      try {
-        const [invList, purchaseList] = await Promise.all([
-          InventoryModel.find().lean(),
-          PurchaseModel.find().lean()
-        ]);
 
-        if (!invList?.length || !purchaseList?.length) {
-          return res.status(404).json({ message: "inventory or purchase data could not be fetched" });
-        }
-
-        
-        // Step 2: Merge with purchase list
-        const mergedData = mergeReleasedDataWithPurchaseList(invList, purchaseList);
-        let newArr=getCategorySummary(mergedData);
-        let gt=getCategoryTotal(newArr);
-        //console.log("line 194 :", newArr);
-        if(newArr){
-            res.json({summary:newArr, gt:gt});
-        } else {
-            res.status(404);
-            throw new Error('inventoryList Not Found');
-        }
-            
-      }catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: err.message });
-      }
-
-}
-*/
 
 export const getInventoryCategorySummary= async (req, res) => {
   try {
-    const inventoryList = await InventoryModel.find().lean();
+    const inventoryList = await InventoryModel.find({ status: 'in-stock' }).lean();
     const purchaseList = await PurchaseModel.find().lean();
     //console.log('inventory list : ', inventoryList);
     //console.log('purchase list : ', purchaseList);
@@ -343,7 +260,6 @@ export const getInventoryCategorySummary= async (req, res) => {
 
 
 //----------------------------------------------
-
 
 /**
  * Edit an existing release inside inventory
@@ -405,6 +321,7 @@ export const deleteRelease = async (req, res) => {
 
     // 1️⃣ Find inventory by custom id
     const inventory = await InventoryModel.findOne({ id: inventoryId });
+    console.log("This is inventory :", inventory);
     if (!inventory) return res.status(404).send("Inventory not found");
 
     // 2️⃣ Check if release exists
@@ -441,3 +358,157 @@ export const deleteRelease = async (req, res) => {
   }
 };
 
+
+
+export const releaseInventory = async (req, res) => {
+  const { date, currentReleaseQty } = req.body;
+
+  try {
+    // 1️⃣ Find related purchase
+    const purchase = await PurchaseModel.findOne({ id: req.params.id }).lean();
+    if (!purchase) {
+      return res.status(404).json({ message: "Purchase not found" });
+    }
+
+    // 2️⃣ Find corresponding inventory record
+    const inventory = await InventoryModel.findOne({ id: req.params.id });
+    if (!inventory) {
+      return res.status(404).json({ message: "Inventory record not found" });
+    }
+
+    // 3️⃣ Validate stock before releasing
+    if (inventory.balanceQty <= 0) {
+      return res.status(400).json({ message: "Item is out of stock" });
+    }
+
+    if (inventory.balanceQty < Number(currentReleaseQty)) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient stock. Cannot release more than available." });
+    }
+
+    // 4️⃣ Compute release details
+    const unitPrice = Number(purchase.amount) / Number(purchase.quantity);
+    const currentReleaseAmt = Number(currentReleaseQty) * unitPrice;
+    const releaseId = shortId.generate();
+
+    const releaseEntry = {
+      releaseId,
+      qty: Number(currentReleaseQty),
+      amt: Number(currentReleaseAmt),
+      releaseDate: date,
+      releasedTo: "Outlet-76",
+      releasedBy: "Bubhuksha Foods",
+    };
+
+    // 5️⃣ Update inventory
+    inventory.releases.push(releaseEntry);
+    inventory.balanceQty -= Number(currentReleaseQty);
+    inventory.releaseQty += Number(currentReleaseQty);
+    inventory.balanceAmt -= currentReleaseAmt;
+    inventory.releaseAmt += currentReleaseAmt;
+
+    // Ensure no negative quantity
+    if (inventory.balanceQty < 0) inventory.balanceQty = 0;
+
+    // 6️⃣ Update status
+    if (inventory.balanceQty === 0) {
+      inventory.status = "out";
+    } else {
+      inventory.status = "in-stock";
+    }
+
+    // 7️⃣ Save changes
+    const updatedItem = await inventory.save();
+
+    // 8️⃣ Merge purchase + inventory info for frontend
+    const obj =
+      updatedItem.id === purchase.id
+        ? { ...updatedItem.toObject(), ...purchase }
+        : null;
+
+    res.json(obj);
+  } catch (err) {
+    console.error("❌ Error in releaseInventory:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+
+
+export const add2Stock = async (req, res) => {
+  try {
+    const { id } = req.params; // ✅ correct destructuring
+
+    const purchaseItem = await PurchaseModel.findOne({ id });
+    
+    //check if purchase record does not exist 
+    if(!purchaseItem){
+      res.status(404);
+      throw new Error("purchase data could not be fetched");
+    }
+    const {quantity, amount}=purchaseItem;
+
+    // ✅ check if record already exists
+    const existing = await InventoryModel.findOne({ id });
+    if (existing) {
+      return res.status(400).json({
+        message: "Inventory record already exists for this purchase id",
+      });
+    }
+
+    // ✅ create inventory record
+    const newInventory = await InventoryModel.create({
+      id,
+      balanceQty: quantity,
+      balanceAmt: amount,
+      releaseQty: 0,
+      releaseAmt: 0,
+      releases: [],
+      createdAt: new Date(),
+    });
+
+    res.status(201).json({
+      message: "Inventory record created successfully",
+      inventory: newInventory,
+    });
+  } catch (error) {
+    console.error("❌ Error creating inventory:", error);
+    res.status(500).json({
+      message: "Server error while creating inventory",
+      error: error.message,
+    });
+  }
+};
+
+
+
+export const editInventory = async (req, res) => {
+  try {
+    const { id } = req.params; // ✅ correct destructuring
+    const {balanceAmt, balanceQty}=req.body;
+
+    const inventoryItem = await InventoryModel.findOne({ id });
+    
+    //check if purchase record does not exist 
+    if(!inventoryItem){
+      res.status(404);
+      throw new Error("inventory data could not be fetched");
+    }
+    inventoryItem.balanceQty = Number(balanceQty);
+    inventoryItem.balanceAmt = Number(balanceAmt);
+    await inventoryItem.save();
+    res.json({
+      message: "Inventory Item updated successfully",
+      inventoryItem,
+    });
+
+  } catch (error) {
+    console.error("❌ Error editing inventory:", error);
+    res.status(500).json({
+      message: "Server error while editing inventory",
+      error: error.message,
+    });
+  }
+};
